@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบจองคิวออนไลน์ - ANC BRH</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+        
+        /* Loading screen */
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #7ec4cf;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s;
+        }
+        
+        #loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .loader {
+            color: white;
+            font-size: 20px;
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">
+        <div class="loader">กำลังโหลด...</div>
+    </div>
+    
+    <!-- แทนที่ URL ด้านล่างด้วยลิงก์ Apps Script ของคุณ -->
+    <iframe 
+        src="https://script.google.com/macros/s/AKfycbzaxeoCWYQy74SIbcXStRshMs8Ouy_GwxLSk8hw-KVmDVYFigZqrLmW3bvyb8RwT9ag/exec"
+        allowfullscreen
+        onload="document.getElementById('loading').classList.add('hidden')"
+    ></iframe>
+</body>
+</html>
+```
+
+4. **แก้บรรทัดที่ 43:** ใส่ลิงก์ Apps Script ล่าสุดของคุณ
+5. คลิก **"Commit changes"**
+
+## ขั้นตอนที่ 3: เปิด GitHub Pages
+
+1. ไปที่ **Settings** (ของ repository)
+2. เลื่อนลงไปหา **"Pages"** ทางซ้ายมือ
+3. ในส่วน **"Source"**:
+   - Branch: เลือก **"main"**
+   - Folder: เลือก **"/ (root)"**
+4. คลิก **"Save"**
+5. รอสักครู่ (1-2 นาที)
+6. **คัดลอก URL** ที่แสดง เช่น:
+```
+   https://your-username.github.io/reservation-system/
