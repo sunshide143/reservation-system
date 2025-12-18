@@ -56,28 +56,37 @@
         <div class="loader">กำลังโหลด...</div>
     </div>
     
-    <!-- แทนที่ URL ด้านล่างด้วยลิงก์ Apps Script ของคุณ -->
+    <!-- แทนที่ URL ด้านล่างด้วยลิงก์ Apps Script Production ของคุณ -->
     <iframe 
-        src="https://script.google.com/macros/s/AKfycbyolWpya7H2vK1_y5SyfLxuoj1d5XcjcPST5ax7FN_1H0-YNAmb8_QWxJDpyTw83Ici/exec"
+        id="mainFrame"
+        src=""
         allowfullscreen
-        onload="document.getElementById('loading').classList.add('hidden')"
     ></iframe>
+    
+    <script>
+        // ใส่ URL ของ Apps Script Production ตรงนี้
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec';
+        
+        // เพิ่ม cache buster เพื่อบังคับให้โหลดใหม่
+        const timestamp = new Date().getTime();
+        const urlWithCacheBuster = APPS_SCRIPT_URL + '?v=' + timestamp;
+        
+        // โหลด iframe
+        const iframe = document.getElementById('mainFrame');
+        iframe.src = urlWithCacheBuster;
+        
+        // ซ่อน loading เมื่อโหลดเสร็จ
+        iframe.onload = function() {
+            document.getElementById('loading').classList.add('hidden');
+        };
+        
+        // ถ้าโหลดนานเกิน 10 วินาที แสดง error
+        setTimeout(function() {
+            if (!iframe.contentWindow.document.body) {
+                document.getElementById('loading').innerHTML = 
+                    '<div class="loader">กรุณารอสักครู่หรือลอง Refresh หน้านี้</div>';
+            }
+        }, 10000);
+    </script>
 </body>
 </html>
-```
-
-4. **แก้บรรทัดที่ 43:** ใส่ลิงก์ Apps Script ล่าสุดของคุณ
-5. คลิก **"Commit changes"**
-
-## ขั้นตอนที่ 3: เปิด GitHub Pages
-
-1. ไปที่ **Settings** (ของ repository)
-2. เลื่อนลงไปหา **"Pages"** ทางซ้ายมือ
-3. ในส่วน **"Source"**:
-   - Branch: เลือก **"main"**
-   - Folder: เลือก **"/ (root)"**
-4. คลิก **"Save"**
-5. รอสักครู่ (1-2 นาที)
-6. **คัดลอก URL** ที่แสดง เช่น:
-```
-   https://your-username.github.io/reservation-system/
