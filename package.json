@@ -1,16 +1,9 @@
 {
-  "name": "reservation-system",
-  "version": "1.0.0",
-  "description": "ระบบจองคิวออนไลน์ - ANC BRH",
-  "main": "index.html",
-  "scripts": {
-    "dev": "vercel dev",
-    "build": "echo 'No build step required'"
-  },
-  "dependencies": {
-    "googleapis": "^134.0.0"
-  },
-  "engines": {
-    "node": ">=18.x"
-  }
-}
+     "name": "reservation-system",
+     "version": "1.0.0",
+     "description": "ระบบจองคิวออนไลน์ - ANC BRH",
+     "main": "index.html",
+     "dependencies": {
+       "googleapis": "^134.0.0"
+     }
+   }
