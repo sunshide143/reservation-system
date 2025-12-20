@@ -1,95 +1,1348 @@
 <!DOCTYPE html>
-<html lang="th">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบจองคิวออนไลน์</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body, html {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            font-family: Arial, sans-serif;
-        }
-        #loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #7ec4cf 0%, #f0eee9 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255,255,255,0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .loading-text {
-            color: white;
-            margin-top: 20px;
-            font-size: 18px;
-        }
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            display: none;
-        }
-        iframe.loaded {
-            display: block;
-        }
-    </style>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>ระบบจองคิวออนไลน์</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style id="baseStyles">
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Kanit', sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #7ec4cf 0%, #f0eee9 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+    }
+    
+    .container {
+      width: 100%;
+      max-width: 500px;
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 30px 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 0.5s ease-out;
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    h1 {
+      font-size: 32px;
+      font-weight: 600;
+      color: #7ec4cf;
+      margin-bottom: 10px;
+    }
+    
+    .subtitle {
+      font-size: 20px;
+      font-weight: 400;
+      color: #666;
+    }
+    
+    /* Step Indicator */
+    .step-indicator {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 40px;
+      position: relative;
+    }
+    
+    .step-indicator::before {
+      content: '';
+      position: absolute;
+      top: 18px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #e0e0e0;
+      z-index: 0;
+    }
+    
+    .step-progress {
+      position: absolute;
+      top: 18px;
+      left: 0;
+      height: 2px;
+      background: #7ec4cf;
+      z-index: 1;
+      transition: width 0.4s ease;
+      width: 0%;
+    }
+    
+    .step {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      flex: 1;
+    }
+    
+    .step-circle {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: #e0e0e0;
+      color: #999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 10px;
+      font-weight: 600;
+      font-size: 18px;
+      transition: all 0.3s ease;
+    }
+    
+    .step.active .step-circle {
+      background: #7ec4cf;
+      color: white;
+      transform: scale(1.1);
+      box-shadow: 0 4px 15px rgba(126, 196, 207, 0.4);
+    }
+    
+    .step.completed .step-circle {
+      background: #7ec4cf;
+      color: white;
+    }
+    
+    .step-label {
+      font-size: 13px;
+      color: #999;
+      font-weight: 400;
+    }
+    
+    .step.active .step-label {
+      color: #7ec4cf;
+      font-weight: 500;
+    }
+    
+    /* Content Sections */
+    .step-content {
+      display: none;
+      animation: slideIn 0.4s ease-out;
+    }
+    
+    .step-content.active {
+      display: block;
+    }
+    
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+    
+    .step-title {
+      font-size: 26px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 18px;
+      text-align: center;
+    }
+    
+    /* Service Cards */
+    .service-grid {
+      display: grid;
+      gap: 18px;
+      margin-bottom: 25px;
+    }
+    
+    .service-card {
+      padding: 28px;
+      border: 2px solid #e0e0e0;
+      border-radius: 18px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: white;
+      min-height: 85px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .service-card:hover {
+      border-color: #7ec4cf;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(126, 196, 207, 0.15);
+    }
+    
+    .service-card.selected {
+      border-color: #7ec4cf;
+      background: #f0f9fa;
+      box-shadow: 0 4px 15px rgba(126, 196, 207, 0.2);
+    }
+    
+    .service-name {
+      font-size: 24px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 6px;
+    }
+    
+    /* Form Elements */
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      font-size: 20px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 12px;
+    }
+    
+    input {
+      width: 100%;
+      padding: 20px 22px;
+      border: 2px solid #e0e0e0;
+      border-radius: 14px;
+      font-family: 'Kanit', sans-serif;
+      font-size: 20px;
+      transition: all 0.3s ease;
+      min-height: 65px;
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: #7ec4cf;
+      box-shadow: 0 0 0 3px rgba(126, 196, 207, 0.1);
+    }
+    
+    input::placeholder {
+      color: #bbb;
+      font-size: 18px;
+    }
+    
+    /* Time Slots */
+    .time-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      margin-bottom: 25px;
+    }
+    
+    .time-slot {
+      padding: 25px;
+      border: 2px solid #e0e0e0;
+      border-radius: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: white;
+      min-height: 105px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .time-slot:hover:not(.disabled) {
+      border-color: #7ec4cf;
+      transform: translateY(-2px);
+    }
+    
+    .time-slot.selected {
+      border-color: #7ec4cf;
+      background: #f0f9fa;
+      box-shadow: 0 4px 15px rgba(126, 196, 207, 0.2);
+    }
+    
+    .time-slot.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      background: #fafafa;
+    }
+    
+    .time-text {
+      font-size: 26px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 8px;
+      pointer-events: none;
+    }
+    
+    .time-available {
+      font-size: 18px;
+      color: #7ec4cf;
+      pointer-events: none;
+      font-weight: 500;
+    }
+    
+    .time-slot.disabled .time-available {
+      color: #999;
+    }
+    
+    /* Buttons */
+    .button-group {
+      display: flex;
+      gap: 16px;
+      margin-top: 25px;
+    }
+    
+    button {
+      flex: 1;
+      padding: 20px;
+      border: none;
+      border-radius: 14px;
+      font-family: 'Kanit', sans-serif;
+      font-size: 22px;
+      font-weight: 600;
+      min-height: 65px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary {
+      background: #7ec4cf;
+      color: white;
+      box-shadow: 0 4px 15px rgba(126, 196, 207, 0.3);
+    }
+    
+    .btn-primary:hover:not(:disabled) {
+      background: #6bb3be;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(126, 196, 207, 0.4);
+    }
+    
+    .btn-secondary {
+      background: white;
+      color: #7ec4cf;
+      border: 2px solid #7ec4cf;
+    }
+    
+    .btn-secondary:hover {
+      background: #f0f9fa;
+    }
+    
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    /* Summary Styles */
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 15px;
+      margin-bottom: 10px;
+      background: #f8f9fa;
+      border-radius: 12px;
+    }
+    
+    .summary-label {
+      font-weight: 500;
+      color: #666;
+    }
+    
+    .summary-value {
+      font-weight: 600;
+      color: #333;
+    }
+    
+    /* Success Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal-overlay.show {
+      display: flex;
+    }
+    
+    .modal-content {
+      background: white;
+      border-radius: 24px;
+      padding: 40px 30px;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      animation: modalPop 0.4s ease-out;
+    }
+    
+    @keyframes modalPop {
+      from {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    
+    .success-icon {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 20px;
+      background: linear-gradient(135deg, #7ec4cf 0%, #5ba9b5 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 50px;
+      box-shadow: 0 10px 40px rgba(126, 196, 207, 0.4);
+      animation: successPulse 0.6s ease-out;
+    }
+    
+    @keyframes successPulse {
+      0% {
+        transform: scale(0);
+        opacity: 0;
+      }
+      50% {
+        transform: scale(1.1);
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+    
+    .success-title {
+      font-size: 28px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 30px;
+    }
+    
+    .success-details {
+      text-align: left;
+      margin-bottom: 30px;
+    }
+    
+    .success-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px;
+      margin-bottom: 8px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+    
+    .success-item-label {
+      color: #666;
+      font-weight: 500;
+    }
+    
+    .success-item-value {
+      color: #333;
+      font-weight: 600;
+    }
+    
+    .modal-close-btn {
+      width: 100%;
+      padding: 14px;
+      background: #7ec4cf;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Kanit', sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .modal-close-btn:hover {
+      background: #6bb3be;
+      transform: translateY(-2px);
+    }
+    
+    /* Final Confirmation Page */
+    .final-page {
+      display: none;
+      text-align: center;
+      padding: 60px 30px;
+    }
+    
+    .final-page.show {
+      display: block;
+    }
+    
+    .final-message {
+      font-size: 20px;
+      font-weight: 500;
+      color: #333;
+      line-height: 1.6;
+      white-space: nowrap;
+    }
+    
+    /* Loading Spinner */
+    .loading {
+      display: none;
+      text-align: center;
+      margin-top: 20px;
+    }
+    
+    .loading.show {
+      display: block;
+    }
+    
+    .spinner {
+      width: 40px;
+      height: 40px;
+      margin: 0 auto 10px;
+      border: 3px solid rgba(126, 196, 207, 0.2);
+      border-top-color: #7ec4cf;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .loading p {
+      color: #666;
+      font-weight: 300;
+    }
+    
+    /* ===== DESKTOP OVERRIDE - Smaller sizes for large screens ===== */
+    @media (min-width: 1024px) {
+      h1 {
+        font-size: 28px;
+      }
+      
+      .subtitle {
+        font-size: 18px;
+      }
+      
+      .step-circle {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+        margin-bottom: 8px;
+      }
+      
+      .step-label {
+        font-size: 11px;
+      }
+      
+      .step-title {
+        font-size: 20px;
+        margin-bottom: 12px;
+      }
+      
+      label {
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 8px;
+      }
+      
+      input {
+        padding: 14px 16px;
+        font-size: 15px;
+        min-height: 52px;
+        border-radius: 12px;
+      }
+      
+      input::placeholder {
+        font-size: 14px;
+      }
+      
+      button {
+        padding: 14px;
+        font-size: 16px;
+        min-height: 52px;
+        border-radius: 12px;
+        font-weight: 500;
+      }
+      
+      .button-group {
+        gap: 12px;
+        margin-top: 20px;
+      }
+      
+      .time-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      
+      .time-slot {
+        padding: 16px;
+        min-height: 70px;
+        border-radius: 12px;
+      }
+      
+      .time-text {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+      
+      .time-available {
+        font-size: 12px;
+        font-weight: normal;
+      }
+      
+      .service-card {
+        padding: 20px;
+        min-height: auto;
+        border-radius: 16px;
+      }
+      
+      .service-name {
+        font-size: 18px;
+        font-weight: 500;
+        margin-bottom: 5px;
+      }
+      
+      .service-grid {
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+      
+      .form-group {
+        margin-bottom: 20px;
+      }
+      
+      .container {
+        padding: 30px 20px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div id="loading">
-        <div class="spinner"></div>
-        <div class="loading-text">กำลังโหลด...</div>
+  <div class="container">
+    <div class="header">
+      <h1>ระบบจองคิวออนไลน์</h1>
+      <p class="subtitle">แผนกฝากครรภ์และวางแผนครอบครัว</p>
     </div>
     
-    <iframe id="app"></iframe>
+    <!-- Step Indicator -->
+    <div class="step-indicator">
+      <div class="step-progress" id="stepProgress"></div>
+      <div class="step active" data-step="1">
+        <div class="step-circle">1</div>
+        <div class="step-label">บริการ</div>
+      </div>
+      <div class="step" data-step="2">
+        <div class="step-circle">2</div>
+        <div class="step-label">วันที่-เวลา</div>
+      </div>
+      <div class="step" data-step="3">
+        <div class="step-circle">3</div>
+        <div class="step-label">ข้อมูลส่วนตัว</div>
+      </div>
+      <div class="step" data-step="4">
+        <div class="step-circle">4</div>
+        <div class="step-label">เบอร์โทร</div>
+      </div>
+      <div class="step" data-step="5">
+        <div class="step-circle">5</div>
+        <div class="step-label">ยืนยัน</div>
+      </div>
+    </div>
     
-    <script>
-        // แทนที่ URL นี้ด้วย Apps Script deployment URL ของคุณ
-        var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzNMt8YoZSwML_UN414MOXw8OtcteXhBVSmcPWY39SKB54Y4cbWEIcILiJ_EsPrKVy_/exec';
+    <!-- Step 1: Select Service -->
+    <div class="step-content active" id="step1">
+      <h2 class="step-title">เลือกบริการที่ต้องการ</h2>
+      <div class="service-grid">
+        <div class="service-card" onclick="selectService(1)">
+          <div class="service-name">แผนกฝากครรภ์</div>
+        </div>
+        <div class="service-card" onclick="selectService(2)">
+          <div class="service-name">แผนกวางแผนครอบครัว</div>
+        </div>
+      </div>
+      <div class="button-group">
+        <button class="btn-primary" onclick="goToStep2()" id="step1Btn" disabled>ถัดไป</button>
+      </div>
+    </div>
+    
+    <!-- Step 2: Select Date & Time -->
+    <div class="step-content" id="step2">
+      <h2 class="step-title">เลือกวันที่และเวลา</h2>
+      <div class="form-group">
+        <label>เลือกวันที่</label>
+        <input type="date" id="dateInput" onchange="checkDate()">
+        <p id="dateWarning" style="color: #c33; font-size: 13px; margin-top: 8px; display: none;"></p>
+      </div>
+      <div id="timeSlotContainer" style="display: none;">
+        <label>เลือกเวลา</label>
+        <div class="time-grid">
+          <div class="time-slot" onclick="selectTime('09:30-10:30')">
+            <div class="time-text">09:30-10:30 น.</div>
+            <div class="time-available">ว่าง 10 ที่</div>
+          </div>
+          <div class="time-slot" onclick="selectTime('10:30-11:30')">
+            <div class="time-text">10:30-11:30 น.</div>
+            <div class="time-available">ว่าง 10 ที่</div>
+          </div>
+          <div class="time-slot" onclick="selectTime('13:30-14:30')">
+            <div class="time-text">13:30-14:30 น.</div>
+            <div class="time-available">ว่าง 10 ที่</div>
+          </div>
+          <div class="time-slot" onclick="selectTime('14:30-15:30')">
+            <div class="time-text">14:30-15:30 น.</div>
+            <div class="time-available">ว่าง 10 ที่</div>
+          </div>
+        </div>
+      </div>
+      <div class="button-group">
+        <button class="btn-secondary" onclick="goToStep1()">ย้อนกลับ</button>
+        <button class="btn-primary" onclick="goToStep3()" id="step2Btn" disabled>ถัดไป</button>
+      </div>
+    </div>
+    
+    <!-- Step 3: Personal Info -->
+    <div class="step-content" id="step3">
+      <h2 class="step-title">กรอกข้อมูลส่วนตัว</h2>
+      <div class="form-group">
+        <label>ชื่อ-นามสกุล</label>
+        <input type="text" id="nameInput" placeholder="กรอกชื่อ-นามสกุล" oninput="checkName()">
+      </div>
+      <div class="button-group">
+        <button class="btn-secondary" onclick="goToStep2FromStep3()">ย้อนกลับ</button>
+        <button class="btn-primary" onclick="goToStep4()" id="step3Btn" disabled>ถัดไป</button>
+      </div>
+    </div>
+    
+    <!-- Step 4: Phone Number -->
+    <div class="step-content" id="step4">
+      <h2 class="step-title">กรอกเบอร์โทรศัพท์</h2>
+      <div class="form-group">
+        <label>เบอร์โทรศัพท์มือถือ</label>
+        <input type="tel" id="phoneInput" placeholder="0812345678" maxlength="10" oninput="checkPhone()">
+      </div>
+      <div class="button-group">
+        <button class="btn-secondary" onclick="goToStep3FromStep4()">ย้อนกลับ</button>
+        <button class="btn-primary" onclick="goToStep5()" id="step4Btn" disabled>ถัดไป</button>
+      </div>
+    </div>
+    
+    <!-- Step 5: Confirmation -->
+    <div class="step-content" id="step5">
+      <h2 class="step-title">ยืนยันการจองคิว</h2>
+      <p class="subtitle" style="font-size: 14px; color: #888; margin-bottom: 24px;">กรุณาตรวจสอบข้อมูลให้ถูกต้อง</p>
+      
+      <div class="summary-container">
+        <div id="summaryContainer"></div>
+      </div>
+      
+      <div class="loading" id="loadingSpinner">
+        <div class="spinner"></div>
+        <p>กำลังบันทึกข้อมูล...</p>
+      </div>
+      
+      <div class="button-group">
+        <button class="btn-secondary" onclick="goToStep4FromStep5()">ย้อนกลับ</button>
+        <button class="btn-primary" onclick="confirmBooking()" id="confirmBtn">ยืนยัน</button>
+      </div>
+    </div>
+    
+    <!-- Final Confirmation Page -->
+    <div class="final-page" id="finalPage">
+      <p class="final-message">ระบบได้ทำการจองคิวให้ท่านเรียบร้อยแล้ว</p>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div class="modal-overlay" id="successModal">
+    <div class="modal-content">
+      <div class="success-icon">✓</div>
+      <div class="success-title">เรียบร้อยแล้ว</div>
+      <div class="success-details" id="successDetails"></div>
+      <button class="modal-close-btn" onclick="closeModal()">ปิด</button>
+    </div>
+  </div>
+
+  <script>
+    let selectedService = null;
+    let selectedServiceId = null;
+    let selectedServiceName = '';
+    let selectedTime = null;
+    let selectedDate = null;
+    let userName = '';
+    let userPhone = '';
+    let currentStep = 1;
+    
+    // วันหยุดราชการไทย 2568 (23 วัน)
+    const thaiHolidays = [
+      '2025-01-01', '2025-02-12', '2025-04-06', '2025-04-07',
+      '2025-04-13', '2025-04-14', '2025-04-15', '2025-04-16',
+      '2025-05-01', '2025-05-05', '2025-05-12',
+      '2025-06-02', '2025-06-03',
+      '2025-07-10', '2025-07-11', '2025-07-28',
+      '2025-08-11', '2025-08-12',
+      '2025-10-13', '2025-10-23',
+      '2025-12-05', '2025-12-10', '2025-12-31'
+    ];
+    
+    function selectService(id) {
+      selectedService = id;
+      selectedServiceId = id === 1 ? 'maternity' : 'family_planning';
+      selectedServiceName = id === 1 ? 'แผนกฝากครรภ์' : 'แผนกวางแผนครอบครัว';
+      document.querySelectorAll('.service-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+      event.target.closest('.service-card').classList.add('selected');
+      document.getElementById('step1Btn').disabled = false;
+    }
+    
+    function checkDate() {
+      const dateInput = document.getElementById('dateInput');
+      const dateWarning = document.getElementById('dateWarning');
+      const timeSlotContainer = document.getElementById('timeSlotContainer');
+      const step2Btn = document.getElementById('step2Btn');
+      
+      step2Btn.disabled = true;
+      
+      if (!dateInput.value) {
+        dateWarning.style.display = 'none';
+        timeSlotContainer.style.display = 'none';
+        return;
+      }
+      
+      const checkSelectedDate = new Date(dateInput.value + 'T00:00:00');
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const dayOfWeek = checkSelectedDate.getDay();
+      const dateStr = dateInput.value;
+      
+      if (checkSelectedDate < today) {
+        dateWarning.textContent = '⚠️ ไม่สามารถจองย้อนหลังได้';
+        dateWarning.style.display = 'block';
+        timeSlotContainer.style.display = 'none';
+        dateInput.value = '';
+        return;
+      }
+      
+      const maxDate = new Date(today);
+      maxDate.setDate(today.getDate() + 7);
+      if (checkSelectedDate > maxDate) {
+        dateWarning.textContent = '⚠️ สามารถจองล่วงหน้าได้เพียง 1 สัปดาห์';
+        dateWarning.style.display = 'block';
+        timeSlotContainer.style.display = 'none';
+        dateInput.value = '';
+        return;
+      }
+      
+      if (dayOfWeek === 0 || dayOfWeek === 6) {
+        dateWarning.textContent = '⚠️ ไม่เปิดให้บริการวันเสาร์-อาทิตย์';
+        dateWarning.style.display = 'block';
+        timeSlotContainer.style.display = 'none';
+        dateInput.value = '';
+        return;
+      }
+      
+      if (thaiHolidays.includes(dateStr)) {
+        dateWarning.textContent = '⚠️ วันหยุดราชการ';
+        dateWarning.style.display = 'block';
+        timeSlotContainer.style.display = 'none';
+        dateInput.value = '';
+        return;
+      }
+      
+      if (selectedServiceId === 'family_planning' && dayOfWeek === 5) {
+        dateWarning.textContent = '⚠️ แผนกวางแผนครอบครัวไม่เปิดให้บริการวันศุกร์';
+        dateWarning.style.display = 'block';
+        timeSlotContainer.style.display = 'none';
+        dateInput.value = '';
+        return;
+      }
+      
+      // วันที่ถูกต้อง - โหลดข้อมูล time slots จาก backend
+      dateWarning.style.display = 'none';
+      selectedDate = dateStr;
+      
+      // แสดง loading
+      timeSlotContainer.style.display = 'block';
+      const timeSlots = document.querySelectorAll('.time-slot');
+      timeSlots.forEach(slot => {
+        slot.style.opacity = '0.5';
+        slot.style.pointerEvents = 'none';
+      });
+      
+      // เรียกใช้ API เพื่อตรวจสอบ time slots ที่ว่าง
+      fetch(`/api/slots?date=${dateStr}&department=${encodeURIComponent(selectedServiceName)}`)
+        .then(response => response.json())
+        .then(availableSlots => {
+          // อัปเดต UI ของแต่ละ time slot
+          updateTimeSlots(availableSlots);
+        })
+        .catch(error => {
+          console.error('Error loading slots:', error);
+          
+          // แสดง error message ให้ผู้ใช้เห็น
+          dateWarning.textContent = '⚠️ ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่อีกครั้ง';
+          dateWarning.style.display = 'block';
+          timeSlotContainer.style.display = 'none';
+          dateInput.value = '';
+          
+          // แสดง fallback: time slots ปกติ (ทั้งหมดว่าง 10 ที่)
+          const fallbackSlots = {
+            '09:30-10:30': { count: 0, available: true },
+            '10:30-11:30': { count: 0, available: true },
+            '13:30-14:30': { count: 0, available: true },
+            '14:30-15:30': { count: 0, available: true }
+          };
+          
+          // แสดง time slots ด้วยข้อมูล fallback หลัง 2 วินาที
+          setTimeout(() => {
+            dateWarning.style.display = 'none';
+            timeSlotContainer.style.display = 'block';
+            updateTimeSlots(fallbackSlots);
+          }, 2000);
+        });
+    }
+    
+    function updateTimeSlots(availableSlots) {
+      console.log('=== updateTimeSlots called ===');
+      console.log('Available slots data:', availableSlots);
+      
+      const timeSlots = document.querySelectorAll('.time-slot');
+      const now = new Date();
+      const selectedDateObj = new Date(selectedDate + 'T00:00:00');
+      const isToday = selectedDateObj.toDateString() === now.toDateString();
+      
+      console.log('Selected date:', selectedDate);
+      console.log('Is today:', isToday);
+      console.log('Current time:', now.toTimeString());
+      
+      timeSlots.forEach(slot => {
+        // ดึง time จาก onclick attribute
+        const onclickAttr = slot.getAttribute('onclick');
+        const timeMatch = onclickAttr.match(/selectTime\('(.+?)'\)/);
         
-        // เพิ่ม authuser= เพื่อแก้ปัญหาหลายบัญชี
-        var url = SCRIPT_URL + '?authuser=&v=' + Date.now();
-        
-        var iframe = document.getElementById('app');
-        var loading = document.getElementById('loading');
-        
-        iframe.src = url;
-        
-        iframe.onload = function() {
-            loading.style.display = 'none';
-            iframe.classList.add('loaded');
-        };
-        
-        // ถ้าโหลดไม่สำเร็จภายใน 15 วินาที
-        setTimeout(function() {
-            if (loading.style.display !== 'none') {
-                loading.innerHTML = '<div style="color: white; text-align: center; padding: 20px;">' +
-                    '<h2>โหลดช้ากว่าปกติ</h2>' +
-                    '<p style="margin-top: 10px;">กรุณารอสักครู่หรือลอง Refresh หน้านี้</p>' +
-                    '</div>';
+        if (timeMatch && timeMatch[1]) {
+          const time = timeMatch[1];
+          const slotInfo = availableSlots[time];
+          
+          console.log(`Processing slot: ${time}`, slotInfo);
+          
+          // รีเซ็ตสถานะ
+          slot.classList.remove('disabled', 'selected');
+          slot.style.opacity = '1';
+          slot.style.pointerEvents = 'auto';
+          
+          // อัปเดตข้อมูลที่ว่าง/เต็ม
+          const timeAvailableDiv = slot.querySelector('.time-available');
+          
+          // ตรวจสอบว่าเวลาผ่านไปแล้วหรือไม่ (เฉพาะวันนี้)
+          let isTimePassed = false;
+          if (isToday) {
+            // ดึงเวลาเริ่มต้นจาก time slot (เช่น "09:30-10:30" -> "09:30")
+            const startTime = time.split('-')[0];
+            const [hours, minutes] = startTime.split(':').map(Number);
+            
+            const slotDateTime = new Date(now);
+            slotDateTime.setHours(hours, minutes, 0, 0);
+            
+            // ถ้าเวลาปัจจุบันเลยเวลาเริ่มต้นของ slot ไปแล้ว
+            if (now >= slotDateTime) {
+              isTimePassed = true;
+              console.log(`  → Time passed for ${time}`);
             }
-        }, 15000);
-    </script>
+          }
+          
+          if (isTimePassed) {
+            // เวลาผ่านไปแล้ว
+            slot.classList.add('disabled');
+            console.log(`  → Disabled (time passed): ${time}`);
+            if (timeAvailableDiv) {
+              timeAvailableDiv.textContent = 'ปิดแล้ว';
+            } else {
+              const newAvailableDiv = document.createElement('div');
+              newAvailableDiv.className = 'time-available';
+              newAvailableDiv.textContent = 'ปิดแล้ว';
+              slot.appendChild(newAvailableDiv);
+            }
+          } else if (slotInfo && !slotInfo.available) {
+            // time slot เต็ม
+            slot.classList.add('disabled');
+            console.log(`  → Disabled (full): ${time}`);
+            if (timeAvailableDiv) {
+              timeAvailableDiv.textContent = 'เต็ม';
+            } else {
+              const newAvailableDiv = document.createElement('div');
+              newAvailableDiv.className = 'time-available';
+              newAvailableDiv.textContent = 'เต็ม';
+              slot.appendChild(newAvailableDiv);
+            }
+          } else if (slotInfo) {
+            // time slot ยังว่าง - แสดงจำนวนที่เหลือ
+            const remaining = 10 - slotInfo.count;
+            console.log(`  → Available: ${time} (${remaining} spots)`);
+            if (timeAvailableDiv) {
+              timeAvailableDiv.textContent = `ว่าง ${remaining} ที่`;
+            } else {
+              const newAvailableDiv = document.createElement('div');
+              newAvailableDiv.className = 'time-available';
+              newAvailableDiv.textContent = `ว่าง ${remaining} ที่`;
+              slot.appendChild(newAvailableDiv);
+            }
+          }
+        }
+      });
+      
+      console.log('=== updateTimeSlots complete ===');
+    }
+    
+    function selectTime(time) {
+      console.log('selectTime called with:', time);
+      
+      // หา time slot ที่ถูกคลิก
+      let clickedSlot = null;
+      
+      // ถ้า event.target มี closest ให้ใช้
+      if (typeof event !== 'undefined' && event.target) {
+        clickedSlot = event.target.closest('.time-slot');
+      }
+      
+      // ถ้าไม่เจอ ให้หาจาก onclick attribute
+      if (!clickedSlot) {
+        const allSlots = document.querySelectorAll('.time-slot');
+        allSlots.forEach(slot => {
+          const onclick = slot.getAttribute('onclick');
+          if (onclick && onclick.includes(time)) {
+            clickedSlot = slot;
+          }
+        });
+      }
+      
+      console.log('Clicked slot:', clickedSlot);
+      
+      // ถ้าไม่เจอ slot หรือ slot ถูก disable
+      if (!clickedSlot) {
+        console.error('Time slot not found');
+        return;
+      }
+      
+      if (clickedSlot.classList.contains('disabled')) {
+        console.log('Time slot is disabled');
+        return;
+      }
+      
+      // บันทึกเวลาที่เลือก
+      selectedTime = time;
+      
+      // ลบ class selected จาก slot อื่นๆ
+      document.querySelectorAll('.time-slot').forEach(slot => {
+        slot.classList.remove('selected');
+      });
+      
+      // เพิ่ม class selected ให้ slot ที่คลิก
+      clickedSlot.classList.add('selected');
+      
+      // เปิดปุ่ม "ถัดไป"
+      document.getElementById('step2Btn').disabled = false;
+      
+      console.log('✅ Time selected successfully:', time);
+    }
+    
+    function checkName() {
+      userName = document.getElementById('nameInput').value.trim();
+      document.getElementById('step3Btn').disabled = userName.length < 2;
+    }
+    
+    function checkPhone() {
+      const input = document.getElementById('phoneInput');
+      input.value = input.value.replace(/[^0-9]/g, '');
+      userPhone = input.value;
+      const isValid = /^0[0-9]{9}$/.test(userPhone);
+      document.getElementById('step4Btn').disabled = !isValid;
+    }
+    
+    function showSummary() {
+      const container = document.getElementById('summaryContainer');
+      const dateObj = new Date(selectedDate + 'T00:00:00');
+      const thaiMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 
+                          'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+      const thaiDays = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
+      const dayName = thaiDays[dateObj.getDay()];
+      const formattedDate = `${dayName} ${dateObj.getDate()} ${thaiMonths[dateObj.getMonth()]} ${dateObj.getFullYear() + 543}`;
+      
+      container.innerHTML = `
+        <div class="summary-item">
+          <span class="summary-label">ชื่อ-นามสกุล</span>
+          <span class="summary-value">${userName}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">เบอร์โทร</span>
+          <span class="summary-value">${userPhone}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">บริการ</span>
+          <span class="summary-value">${selectedServiceName}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">วันที่</span>
+          <span class="summary-value">${formattedDate}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">เวลา</span>
+          <span class="summary-value">${selectedTime}</span>
+        </div>
+      `;
+    }
+    
+    function confirmBooking() {
+      const confirmBtn = document.getElementById('confirmBtn');
+      const loadingSpinner = document.getElementById('loadingSpinner');
+      
+      // แสดง loading
+      confirmBtn.disabled = true;
+      loadingSpinner.classList.add('show');
+      
+      // เตรียมข้อมูลสำหรับบันทึก
+      const bookingData = {
+        date: selectedDate,
+        time: selectedTime,
+        department: selectedServiceName,
+        name: userName,
+        phone: userPhone
+      };
+      
+      // เรียกใช้ API สำหรับบันทึกการจอง
+      fetch('/api/booking', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bookingData)
+      })
+        .then(response => response.json())
+        .then(result => {
+          loadingSpinner.classList.remove('show');
+          
+          if (result.success) {
+            // แสดง success modal
+            const modal = document.getElementById('successModal');
+            const detailsContainer = document.getElementById('successDetails');
+            
+            const dateObj = new Date(selectedDate + 'T00:00:00');
+            const thaiMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 
+                                'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+            const thaiDays = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
+            const dayName = thaiDays[dateObj.getDay()];
+            const formattedDate = `${dayName} ${dateObj.getDate()} ${thaiMonths[dateObj.getMonth()]} ${dateObj.getFullYear() + 543}`;
+            
+            detailsContainer.innerHTML = `
+              <div class="success-item">
+                <span class="success-item-label">ชื่อ-นามสกุล</span>
+                <span class="success-item-value">${userName}</span>
+              </div>
+              <div class="success-item">
+                <span class="success-item-label">เบอร์โทร</span>
+                <span class="success-item-value">${userPhone}</span>
+              </div>
+              <div class="success-item">
+                <span class="success-item-label">บริการ</span>
+                <span class="success-item-value">${selectedServiceName}</span>
+              </div>
+              <div class="success-item">
+                <span class="success-item-label">วันที่</span>
+                <span class="success-item-value">${formattedDate}</span>
+              </div>
+              <div class="success-item">
+                <span class="success-item-label">เวลา</span>
+                <span class="success-item-value">${selectedTime}</span>
+              </div>
+            `;
+            
+            modal.classList.add('show');
+          } else {
+            alert('เกิดข้อผิดพลาด: ' + result.message);
+            confirmBtn.disabled = false;
+          }
+        })
+        .catch(error => {
+          loadingSpinner.classList.remove('show');
+          alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + error);
+          confirmBtn.disabled = false;
+        });
+    }
+    
+    function closeModal() {
+      document.getElementById('successModal').classList.remove('show');
+      
+      // Hide all steps and header
+      document.querySelector('.header').style.display = 'none';
+      document.querySelector('.step-indicator').style.display = 'none';
+      document.getElementById('step5').style.display = 'none';
+      
+      // Show final confirmation page
+      document.getElementById('finalPage').classList.add('show');
+    }
+    
+    function goToStep2() {
+      document.getElementById('step1').classList.remove('active');
+      document.getElementById('step2').classList.add('active');
+      
+      document.querySelector('.step[data-step="1"]').classList.remove('active');
+      document.querySelector('.step[data-step="1"]').classList.add('completed');
+      document.querySelector('.step[data-step="2"]').classList.add('active');
+      
+      document.getElementById('stepProgress').style.width = '25%';
+      currentStep = 2;
+      
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      document.getElementById('dateInput').setAttribute('min', `${yyyy}-${mm}-${dd}`);
+      
+      const maxDate = new Date(today);
+      maxDate.setDate(today.getDate() + 7);
+      const maxYyyy = maxDate.getFullYear();
+      const maxMm = String(maxDate.getMonth() + 1).padStart(2, '0');
+      const maxDd = String(maxDate.getDate()).padStart(2, '0');
+      document.getElementById('dateInput').setAttribute('max', `${maxYyyy}-${maxMm}-${maxDd}`);
+    }
+    
+    function goToStep1() {
+      document.getElementById('step2').classList.remove('active');
+      document.getElementById('step1').classList.add('active');
+      
+      document.querySelector('.step[data-step="2"]').classList.remove('active');
+      document.querySelector('.step[data-step="1"]').classList.add('active');
+      document.querySelector('.step[data-step="1"]').classList.remove('completed');
+      
+      document.getElementById('stepProgress').style.width = '0%';
+      currentStep = 1;
+    }
+    
+    function goToStep3() {
+      document.getElementById('step2').classList.remove('active');
+      document.getElementById('step3').classList.add('active');
+      
+      document.querySelector('.step[data-step="2"]').classList.remove('active');
+      document.querySelector('.step[data-step="2"]').classList.add('completed');
+      document.querySelector('.step[data-step="3"]').classList.add('active');
+      
+      document.getElementById('stepProgress').style.width = '50%';
+      currentStep = 3;
+    }
+    
+    function goToStep2FromStep3() {
+      document.getElementById('step3').classList.remove('active');
+      document.getElementById('step2').classList.add('active');
+      
+      document.querySelector('.step[data-step="3"]').classList.remove('active');
+      document.querySelector('.step[data-step="2"]').classList.add('active');
+      document.querySelector('.step[data-step="2"]').classList.remove('completed');
+      
+      document.getElementById('stepProgress').style.width = '25%';
+      currentStep = 2;
+    }
+    
+    function goToStep4() {
+      document.getElementById('step3').classList.remove('active');
+      document.getElementById('step4').classList.add('active');
+      
+      document.querySelector('.step[data-step="3"]').classList.remove('active');
+      document.querySelector('.step[data-step="3"]').classList.add('completed');
+      document.querySelector('.step[data-step="4"]').classList.add('active');
+      
+      document.getElementById('stepProgress').style.width = '75%';
+      currentStep = 4;
+    }
+    
+    function goToStep3FromStep4() {
+      document.getElementById('step4').classList.remove('active');
+      document.getElementById('step3').classList.add('active');
+      
+      document.querySelector('.step[data-step="4"]').classList.remove('active');
+      document.querySelector('.step[data-step="3"]').classList.add('active');
+      document.querySelector('.step[data-step="3"]').classList.remove('completed');
+      
+      document.getElementById('stepProgress').style.width = '50%';
+      currentStep = 3;
+    }
+    
+    function goToStep5() {
+      showSummary();
+      
+      document.getElementById('step4').classList.remove('active');
+      document.getElementById('step5').classList.add('active');
+      
+      document.querySelector('.step[data-step="4"]').classList.remove('active');
+      document.querySelector('.step[data-step="4"]').classList.add('completed');
+      document.querySelector('.step[data-step="5"]').classList.add('active');
+      
+      document.getElementById('stepProgress').style.width = '100%';
+      currentStep = 5;
+    }
+    
+    function goToStep4FromStep5() {
+      document.getElementById('step5').classList.remove('active');
+      document.getElementById('step4').classList.add('active');
+      
+      document.querySelector('.step[data-step="5"]').classList.remove('active');
+      document.querySelector('.step[data-step="4"]').classList.add('active');
+      document.querySelector('.step[data-step="4"]').classList.remove('completed');
+      
+      document.getElementById('stepProgress').style.width = '75%';
+      currentStep = 4;
+    }
+    
+    // Debug: แสดงข้อมูลหน้าจอ
+    window.addEventListener('load', function() {
+      console.log('Screen Width:', window.screen.width);
+      console.log('Window Inner Width:', window.innerWidth);
+      console.log('Device Pixel Ratio:', window.devicePixelRatio);
+      console.log('User Agent:', navigator.userAgent);
+      
+      // แสดงขนาด H1 จริงๆ
+      const h1 = document.querySelector('h1');
+      if (h1) {
+        const styles = window.getComputedStyle(h1);
+        console.log('H1 Font Size:', styles.fontSize);
+        console.log('H1 Computed:', styles);
+      }
+      
+      // แสดงขนาด input จริงๆ
+      const input = document.querySelector('input');
+      if (input) {
+        const styles = window.getComputedStyle(input);
+        console.log('Input Font Size:', styles.fontSize);
+        console.log('Input Padding:', styles.padding);
+      }
+    });
+  </script>
 </body>
 </html>
