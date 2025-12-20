@@ -48,6 +48,8 @@
             color: white;
             font-size: 20px;
             font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
         }
     </style>
 </head>
@@ -56,7 +58,7 @@
         <div class="loader">กำลังโหลด...</div>
     </div>
     
-    <!-- แทนที่ URL ด้านล่างด้วยลิงก์ Apps Script Production ของคุณ -->
+    <!-- Apps Script URL จะถูกโหลดที่นี่ -->
     <iframe 
         id="mainFrame"
         src=""
@@ -64,27 +66,45 @@
     ></iframe>
     
     <script>
-        // ใส่ URL ของ Apps Script Production ตรงนี้
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec';
+        // ⚠️ ใส่ URL ของ Apps Script Production ตรงนี้
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/https://script.google.com/macros/s/AKfycbzNMt8YoZSwML_UN414MOXw8OtcteXhBVSmcPWY39SKB54Y4cbWEIcILiJ_EsPrKVy_/exec/exec';
         
-        // เพิ่ม cache buster เพื่อบังคับให้โหลดใหม่
-        const timestamp = new Date().getTime();
-        const urlWithCacheBuster = APPS_SCRIPT_URL + '?v=' + timestamp;
+        // แก้ปัญหาหลายบัญชี: เพิ่ม authuser parameter
+        // authuser= (ว่างเปล่า) = ไม่ระบุบัญชี, ใช้ Anyone access
+        const urlParams = new URLSearchParams();
+        urlParams.set('authuser', ''); // บังคับให้ไม่ระบุบัญชี
+        
+        // เพิ่ม cache buster
+        urlParams.set('v', new Date().getTime());
+        
+        // สร้าง URL เต็ม
+        const finalUrl = APPS_SCRIPT_URL + '?' + urlParams.toString();
+        
+        console.log('Loading URL:', finalUrl);
         
         // โหลด iframe
         const iframe = document.getElementById('mainFrame');
-        iframe.src = urlWithCacheBuster;
+        iframe.src = finalUrl;
         
         // ซ่อน loading เมื่อโหลดเสร็จ
         iframe.onload = function() {
+            console.log('Iframe loaded successfully');
             document.getElementById('loading').classList.add('hidden');
         };
         
-        // ถ้าโหลดนานเกิน 10 วินาที แสดง error
+        // จัดการ error
+        iframe.onerror = function() {
+            console.error('Error loading iframe');
+            document.getElementById('loading').innerHTML = 
+                '<div class="loader">เกิดข้อผิดพลาดในการโหลด<br>กรุณาลองใหม่อีกครั้ง</div>';
+        };
+        
+        // ถ้าโหลดนานเกิน 10 วินาที
         setTimeout(function() {
-            if (!iframe.contentWindow.document.body) {
-                document.getElementById('loading').innerHTML = 
-                    '<div class="loader">กรุณารอสักครู่หรือลอง Refresh หน้านี้</div>';
+            const loading = document.getElementById('loading');
+            if (!loading.classList.contains('hidden')) {
+                loading.innerHTML = 
+                    '<div class="loader">กำลังโหลด...<br><small>ถ้ารอนานเกินไป กรุณากด Refresh</small></div>';
             }
         }, 10000);
     </script>
