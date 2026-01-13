@@ -705,19 +705,15 @@
         <div class="time-grid">
           <div class="time-slot" onclick="selectTime('09:30-10:30')">
             <div class="time-text">09:30-10:30 น.</div>
-            <div class="time-available">ว่าง 10 ที่</div>
+            <div class="time-available">ว่าง 6 ที่</div>
           </div>
           <div class="time-slot" onclick="selectTime('10:30-11:30')">
             <div class="time-text">10:30-11:30 น.</div>
-            <div class="time-available">ว่าง 10 ที่</div>
+            <div class="time-available">ว่าง 6 ที่</div>
           </div>
-          <div class="time-slot" onclick="selectTime('13:30-14:30')">
-            <div class="time-text">13:30-14:30 น.</div>
-            <div class="time-available">ว่าง 10 ที่</div>
-          </div>
-          <div class="time-slot" onclick="selectTime('14:30-15:30')">
-            <div class="time-text">14:30-15:30 น.</div>
-            <div class="time-available">ว่าง 10 ที่</div>
+          <div class="time-slot" onclick="selectTime('13:30-14:00')">
+            <div class="time-text">13:30-14:00 น.</div>
+            <div class="time-available">ว่าง 6 ที่</div>
           </div>
         </div>
       </div>
@@ -913,12 +909,11 @@
           timeSlotContainer.style.display = 'none';
           dateInput.value = '';
           
-          // แสดง fallback: time slots ปกติ (ทั้งหมดว่าง 10 ที่)
+          // แสดง fallback: time slots ปกติ (ทั้งหมดว่าง 6 ที่)
           const fallbackSlots = {
             '09:30-10:30': { count: 0, available: true },
             '10:30-11:30': { count: 0, available: true },
-            '13:30-14:30': { count: 0, available: true },
-            '14:30-15:30': { count: 0, available: true }
+            '13:30-14:00': { count: 0, available: true }
           };
           
           // แสดง time slots ด้วยข้อมูล fallback หลัง 2 วินาที
