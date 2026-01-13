@@ -53,7 +53,7 @@ async function checkAvailability(sheets, spreadsheetId, date, time) {
     }
   });
   
-  return count < 10; // MAX_CAPACITY = 10
+  return count < 6; // MAX_CAPACITY = 6
 }
 
 // ฟังก์ชันหลัก
