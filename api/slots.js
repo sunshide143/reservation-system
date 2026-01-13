@@ -59,8 +59,7 @@ module.exports = async (req, res) => {
     const slotCounts = {
       '09:30-10:30': 0,
       '10:30-11:30': 0,
-      '13:30-14:30': 0,
-      '14:30-15:30': 0
+      '13:30-14:00': 0
     };
     
     // Loop ผ่านข้อมูลทั้งหมด
@@ -94,7 +93,7 @@ module.exports = async (req, res) => {
     });
     
     // สร้าง response object
-    const MAX_CAPACITY = 10;
+    const MAX_CAPACITY = 6;
     const result = {};
     
     for (let slot in slotCounts) {
