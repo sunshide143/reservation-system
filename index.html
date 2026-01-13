@@ -1000,7 +1000,7 @@
             }
           } else if (slotInfo) {
             // time slot ยังว่าง - แสดงจำนวนที่เหลือ
-            const remaining = 6 - slotInfo.count;
+            const remaining = Math.max(0, 6 - slotInfo.count);
             console.log(`  → Available: ${time} (${remaining} spots)`);
             if (timeAvailableDiv) {
               timeAvailableDiv.textContent = `ว่าง ${remaining} ที่`;
