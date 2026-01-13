@@ -19,20 +19,23 @@ function getGoogleAuth() {
   }
 }
 
-// ฟังก์ชันสำหรับเช็คว่า time slot ยังว่างหรือไม่
-async function checkAvailability(sheets, spreadsheetId, date, time) {
+// ฟังก์ชันสำหรับเช็คทั้ง availability และ duplicate พร้อมกัน
+async function checkBookingStatus(sheets, spreadsheetId, date, time, phone) {
   const response = await sheets.spreadsheets.values.get({
     spreadsheetId,
-    range: 'Reservations!A2:B',
+    range: 'Reservations!A2:E', // อ่านคอลัมน์ A-E (วันที่, เวลา, แผนก, ชื่อ, เบอร์โทร)
   });
   
   const rows = response.data.values || [];
-  let count = 0;
+  let slotCount = 0;
+  let isDuplicate = false;
   
   rows.forEach(row => {
     const rowDate = row[0];
     const rowTime = row[1];
+    const rowPhone = row[4];
     
+    // แปลงวันที่ให้เป็นรูปแบบเดียวกัน
     let formattedRowDate = '';
     if (rowDate && typeof rowDate === 'string') {
       if (rowDate.includes('/')) {
@@ -48,12 +51,22 @@ async function checkAvailability(sheets, spreadsheetId, date, time) {
       }
     }
     
+    // นับจำนวนคนในช่วงเวลานี้
     if (formattedRowDate === date && rowTime && rowTime.trim() === time) {
-      count++;
+      slotCount++;
+    }
+    
+    // เช็คการจองซ้ำ (เบอร์เดียวกัน + วันเดียวกัน)
+    if (formattedRowDate === date && rowPhone && rowPhone.trim() === phone.trim()) {
+      isDuplicate = true;
     }
   });
   
-  return count < 6; // MAX_CAPACITY = 6
+  return {
+    slotCount,
+    isDuplicate,
+    isAvailable: slotCount < 6
+  };
 }
 
 // ฟังก์ชันหลัก
@@ -91,13 +104,39 @@ module.exports = async (req, res) => {
     
     const spreadsheetId = '1tFnbDgcGwHwMHdJAPMdb67fZLwkLgKMfEv7v2xPy9f8';
     
-    // ตรวจสอบว่า time slot ยังว่างหรือไม่
-    const isAvailable = await checkAvailability(sheets, spreadsheetId, date, time);
+    // เช็คทั้ง availability และ duplicate ในครั้งเดียว (ลด race condition)
+    const bookingStatus = await checkBookingStatus(sheets, spreadsheetId, date, time, phone);
     
-    if (!isAvailable) {
+    // ตรวจสอบการจองซ้ำ
+    if (bookingStatus.isDuplicate) {
       return res.status(400).json({
         success: false,
-        message: 'ขออภัย ช่วงเวลานี้เต็มแล้ว กรุณาเลือกช่วงเวลาอื่น'
+        message: 'เบอร์โทรนี้มีการจองในวันนี้แล้ว กรุณาใช้เบอร์โทรอื่น หรือติดต่อเจ้าหน้าที่'
+      });
+    }
+    
+    // ตรวจสอบว่า time slot ยังว่างหรือไม่
+    if (!bookingStatus.isAvailable) {
+      return res.status(400).json({
+        success: false,
+        message: `ขออภัย ช่วงเวลานี้เต็มแล้ว (${bookingStatus.slotCount}/6) กรุณาเลือกช่วงเวลาอื่น`
+      });
+    }
+    
+    // Double-check ก่อนบันทึก (ป้องกัน race condition เพิ่มเติม)
+    const finalCheck = await checkBookingStatus(sheets, spreadsheetId, date, time, phone);
+    
+    if (!finalCheck.isAvailable) {
+      return res.status(400).json({
+        success: false,
+        message: 'ขออภัย ช่วงเวลานี้เต็มแล้ว (มีคนจองพร้อมกัน) กรุณาเลือกช่วงเวลาอื่น'
+      });
+    }
+    
+    if (finalCheck.isDuplicate) {
+      return res.status(400).json({
+        success: false,
+        message: 'เบอร์โทรนี้มีการจองในวันนี้แล้ว'
       });
     }
     
@@ -111,6 +150,9 @@ module.exports = async (req, res) => {
       valueInputOption: 'USER_ENTERED',
       resource: { values },
     });
+    
+    // Verify บันทึกสำเร็จ (optional แต่ช่วยเช็ค)
+    console.log(`✅ Booking confirmed: ${date} ${time} - ${name} (${phone})`);
     
     return res.status(200).json({
       success: true,
